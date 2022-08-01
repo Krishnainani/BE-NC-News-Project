@@ -32,14 +32,17 @@ describe("/api/topics", () => {
           expect(body.topics[0]).toHaveProperty("description");
         });
     });
-    test("status 404: when route does not exist", () => {
-      return request(app)
-        .get("/api/not_a_route")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body).toHaveProperty("msg");
-          expect(body.msg).toBe("Not Found");
-        });
-    });
+  });
+});
+
+describe("/*", () => {
+  test("status 404: when route does not exist", () => {
+    return request(app)
+      .get("/api/not_a_route")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg");
+        expect(body.msg).toBe("Not Found");
+      });
   });
 });
