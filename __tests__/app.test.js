@@ -100,18 +100,6 @@ describe("/api/articles/:article_id", () => {
           });
         });
     });
-    test("status:200, the property of author should have a value which needs to be a string ", () => {
-      return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({ body: { articles } }) => {
-          articles.forEach((article) => {
-            expect(article).toEqual(
-              expect.objectContaining({ author: expect.any(String) })
-            );
-          });
-        });
-    });
     test("status:200, the property of author should have same value as username in the users table", () => {
       db.query("SELECT * FROM users").then(({ rows: users }) => {
         return request(app)
