@@ -3,6 +3,7 @@ const db = require("../db/connection");
 const request = require("supertest");
 const data = require("../db/data");
 const seed = require("../db/seeds/seed");
+const { convertTimestampToDate } = require("../db/seeds/utils");
 
 afterAll(() => {
   return db.end();
@@ -69,32 +70,74 @@ describe("/api/articles/:article_id", () => {
       return request(app)
         .get("/api/articles/1")
         .expect(200)
-        .then(({ body }) => {
-          expect(body.articles[0]).toHaveProperty("author");
-          expect(body.articles[0]).toHaveProperty("title");
-          expect(body.articles[0]).toHaveProperty("article_id");
-          expect(body.articles[0]).toHaveProperty("body");
-          expect(body.articles[0]).toHaveProperty("topic");
-          expect(body.articles[0]).toHaveProperty("created_at");
-          expect(body.articles[0]).toHaveProperty("votes");
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(article).toHaveProperty("author");
+            expect(article).toHaveProperty("title");
+            expect(article).toHaveProperty("article_id");
+            expect(article).toHaveProperty("body");
+            expect(article).toHaveProperty("topic");
+            expect(article).toHaveProperty("created_at");
+            expect(article).toHaveProperty("votes");
+          });
+        });
+    });
+    test("status:200, should return the requested object whose values are based on the given id ", () => {
+      return request(app)
+        .get("/api/articles/2")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            const date = convertTimestampToDate(article);
+            expect(article).toEqual(expect.objectContaining({ article_id: 2 })),
+              expect(article.article_id).toEqual(2),
+              expect(article.author).toEqual(expect.any(String)),
+              expect(article.title).toEqual(expect.any(String)),
+              expect(article.body).toEqual(expect.any(String)),
+              expect(article.topic).toEqual(expect.any(String)),
+              expect(date.created_at).toEqual(expect.any(Date)),
+              expect(article.votes).toEqual(expect.any(Number));
+          });
         });
     });
     test("status:200, the property of author should have a value which needs to be a string ", () => {
       return request(app)
         .get("/api/articles/1")
         .expect(200)
-        .then(({ body }) => {
-          expect(body.articles[0]).toEqual(
-            expect.objectContaining({ author: expect.any(String) })
-          );
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(article).toEqual(
+              expect.objectContaining({ author: expect.any(String) })
+            );
+          });
         });
     });
     test("status:200, the property of author should have same value as username in the users table", () => {
+      db.query("SELECT * FROM users").then(({ rows: users }) => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles[0].author).toEqual(users[0].username);
+          });
+      });
+    });
+    test("status:404, should respond with not found message when given an valid but out of range id", () => {
       return request(app)
-        .get("/api/articles/1")
-        .expect(200)
+        .get("/api/articles/999999")
+        .expect(404)
         .then(({ body }) => {
-          expect(body.articles[0].author).toEqual(body.users[0].username);
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("User for article_id: 999999 not found");
+        });
+    });
+    test("status:400, should respond with bad request message when given an invalid id", () => {
+      return request(app)
+        .get("/api/articles/not_an_id")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
         });
     });
   });
