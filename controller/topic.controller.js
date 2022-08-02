@@ -6,9 +6,11 @@ exports.getTopics = (req, res, next) => {
   });
 };
 
-exports.getArticlesById = (req,res, next) => {
-  fetchArticleById().then(([articles]) => {
-    console.log(articles)
-    res.status(200).send({articles: articles})
-  })
-}
+exports.getArticlesById = (req, res, next) => {
+  const { article_id } = req.params;
+  fetchArticleById(article_id)
+    .then(([articles]) => {
+      res.status(200).send({ articles: articles });
+    })
+    .catch(next);
+};
