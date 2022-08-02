@@ -130,22 +130,23 @@ describe("/api/articles/:article_id", () => {
     });
   });
   describe.only("PATCH", () => {
-    test("Status:200, the body should contain a property of inc_votes and should have a number as a value", () => {
+    test("Status:201, the body should contain a property of inc_votes and should have a number as a value", () => {
+      const addVotes = { inc_votes: -100 };
       return request(app)
         .patch("/api/articles/1")
-        .send()
-        .expect(200)
+        .send(addVotes)
+        .expect(201)
         .then(({ body }) => {
-          expect(body).toHaveProperty("inc_votes");
-          expect(body.inc_votes).toEqual(expect.any(Number));
+          expect(addVotes).toHaveProperty("inc_votes");
+          expect(addVotes.inc_votes).toEqual(expect.any(Number));
         });
     });
-    test("Status:200, should update votes for the requested article_id", () => {
+    test("Status:201, should update votes for the requested article_id", () => {
       const addVotes = { inc_votes: 100 };
       return request(app)
         .patch("/api/articles/1")
         .send(addVotes)
-        .expect(200)
+        .expect(201)
         .then(({ body: { articles } }) => {
           articles.forEach((article) => {
             expect(article).toEqual(expect.objectContaining({ article_id: 1 })),
@@ -153,16 +154,56 @@ describe("/api/articles/:article_id", () => {
           });
         });
     });
-    // test("Status:200, should add the votes when given positive number", () => {
-    //   const addVotes = {inc_votes: 100}
-    //   return request(app)
-    //     .patch("/api/articles/1")
-    //     .send(addVotes)
-    //     .expect(200)
-    //     .then(({ body }) => {
-    //       expect(body).toHaveProperty("inc_votes");
-    //       expect(body.inc_votes).toEqual(expect.any(Number));
-    //     });
-    // });
+    test("Status:201, should add the votes when given positive number", () => {
+      const addVotes = { inc_votes: 100 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(201)
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(article).toHaveProperty("votes"),
+              expect(article.votes).toEqual(200);
+          });
+        });
+    });
+    test("Status:201, should subtract the votes when given negitive number", () => {
+      const addVotes = { inc_votes: -50 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(201)
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(article.votes).toEqual(50);
+          });
+        });
+    });
+    test("Status:201, should not change any other properties", () => {
+      const addVotes = { inc_votes: -50 };
+      const originalArticle = {
+        title: "Living in the shadow of a great man",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "I find this existence challenging",
+        created_at: 1594329060000,
+        votes: 100,
+      };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(201)
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(article.title).toEqual(originalArticle.title);
+            expect(article.topic).toEqual(originalArticle.topic);
+            expect(article.author).toEqual(originalArticle.author);
+            expect(article.body).toEqual(originalArticle.body);
+            //expect(article.created_at).toEqual(originalArticle.created_at);
+            expect(article.article_id).toEqual(1);
+            expect(article.votes).toEqual(50);
+          });
+        });
+    });
   });
 });
