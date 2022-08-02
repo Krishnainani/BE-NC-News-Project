@@ -129,4 +129,40 @@ describe("/api/articles/:article_id", () => {
         });
     });
   });
+  describe.only("PATCH", () => {
+    test("Status:200, the body should contain a property of inc_votes and should have a number as a value", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send()
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("inc_votes");
+          expect(body.inc_votes).toEqual(expect.any(Number));
+        });
+    });
+    test("Status:200, should update votes for the requested article_id", () => {
+      const addVotes = { inc_votes: 100 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(article).toEqual(expect.objectContaining({ article_id: 1 })),
+              expect(article.article_id).toEqual(1);
+          });
+        });
+    });
+    // test("Status:200, should add the votes when given positive number", () => {
+    //   const addVotes = {inc_votes: 100}
+    //   return request(app)
+    //     .patch("/api/articles/1")
+    //     .send(addVotes)
+    //     .expect(200)
+    //     .then(({ body }) => {
+    //       expect(body).toHaveProperty("inc_votes");
+    //       expect(body.inc_votes).toEqual(expect.any(Number));
+    //     });
+    // });
+  });
 });
