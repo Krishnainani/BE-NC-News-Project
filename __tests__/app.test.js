@@ -130,3 +130,40 @@ describe("/api/articles/:article_id", () => {
     });
   });
 });
+
+describe.only("/api/users", () => {
+  describe("GET", () => {
+    test("status:200, Should have a property of users", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("users");
+        });
+    });
+    test("status:200, users need to be an array of objects", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Array.isArray(body.users)).toBe(true);
+          expect(body.users).toHaveLength(4);
+          body.users.forEach((user) => {
+            expect(typeof user).toEqual('object');
+          });
+        });
+    });
+    // test("status:200, the object", () => {
+    //   return request(app)
+    //     .get("/api/users")
+    //     .expect(200)
+    //     .then(({ body }) => {
+    //       expect(Array.isArray(body.users)).toBe(true);
+    //       expect(body.users).toHaveLength(4);
+    //       body.users.forEach((user) => {
+    //         expect(typeof user).toEqual('object');
+    //       });
+    //     });
+    // });
+  });
+});
