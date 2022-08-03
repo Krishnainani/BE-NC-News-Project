@@ -186,7 +186,7 @@ describe("/api/articles/:article_id", () => {
         topic: "mitch",
         author: "butter_bridge",
         body: "I find this existence challenging",
-        created_at: 1594329060000,
+        created_at: "2020-07-09T20:11:00.000Z",
         votes: 100,
       };
       return request(app)
@@ -199,7 +199,7 @@ describe("/api/articles/:article_id", () => {
             expect(article.topic).toEqual(originalArticle.topic);
             expect(article.author).toEqual(originalArticle.author);
             expect(article.body).toEqual(originalArticle.body);
-            //expect(article.created_at).toEqual(originalArticle.created_at);
+            expect(article.created_at).toEqual(originalArticle.created_at);
             expect(article.article_id).toEqual(1);
             expect(article.votes).toEqual(50);
           });
