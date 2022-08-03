@@ -129,7 +129,7 @@ describe("/api/articles/:article_id", () => {
         });
     });
   });
-  describe.only("PATCH", () => {
+  describe("PATCH", () => {
     test("Status:201, the body should contain a property of inc_votes and should have a number as a value", () => {
       const addVotes = { inc_votes: -100 };
       return request(app)
@@ -203,6 +203,28 @@ describe("/api/articles/:article_id", () => {
             expect(article.article_id).toEqual(1);
             expect(article.votes).toEqual(50);
           });
+        });
+    });
+    test("Status:400, should respond with bad request when there is malformed body/missing required fields", () => {
+      const addVotes = {};
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("Status:400, should respond with bad request when there is incorrect type", () => {
+      const addVotes = {inc_votes: "not_a_number"};
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
         });
     });
   });
