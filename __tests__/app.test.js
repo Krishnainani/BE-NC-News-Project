@@ -210,5 +210,16 @@ describe("/api/articles/:article_id", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
+    test("Status:400, should respond with bad request when the inc_votes is misspelled", () => {
+      const addVotes = { inc_vtes : 100};
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
+        });
+    });
   });
 });
