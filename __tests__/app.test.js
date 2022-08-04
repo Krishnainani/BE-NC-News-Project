@@ -223,3 +223,44 @@ describe("/api/articles/:article_id", () => {
     });
   });
 });
+
+describe("/api/users", () => {
+  describe("GET", () => {
+    test("status:200, Should have a property of users", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("users");
+        });
+    });
+    test("status:200, users need to be an array of objects", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Array.isArray(body.users)).toBe(true);
+          expect(body.users).toHaveLength(4);
+          body.users.forEach((user) => {
+            expect(typeof user).toEqual('object');
+          });
+        });
+    });
+    test("status:200, the object should have the propertes of username, name and avatar_url with their desired values ", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          body.users.forEach((user) => {
+            expect(user).toHaveProperty('username')
+            expect(user.username).toEqual(expect.any(String))
+            expect(user).toHaveProperty('name')
+            expect(user.name).toEqual(expect.any(String))
+            expect(user).toHaveProperty('avatar_url')
+            expect(user.avatar_url).toEqual(expect.any(String))
+            
+          });
+        });
+    });
+  });
+});
