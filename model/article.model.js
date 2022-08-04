@@ -3,10 +3,11 @@ const db = require("../db/connection");
 exports.fetchArticleById = (article_id) => {
   return db
     .query(
-      `SELECT author, title, article_id, body, topic, created_at, votes, username 
-        FROM articles, users 
-        WHERE username = author
-        AND article_id = $1`,
+      `SELECT articles.*, COUNT(comment_id) AS comment_count
+      FROM articles
+      LEFT JOIN comments ON comments.article_id = articles.article_id
+      WHERE articles.article_id = $1
+      GROUP BY articles.article_id`,
       [article_id]
     )
     .then(({ rows }) => {
@@ -16,13 +17,7 @@ exports.fetchArticleById = (article_id) => {
           msg: `User for article_id: ${article_id} not found`,
         });
       }
-      const articles = rows.map((articles) => {
-        if (articles.author === articles.username) {
-          delete articles.username;
-        }
-        return rows;
-      });
-      return articles;
+      return rows;
     });
 };
 
