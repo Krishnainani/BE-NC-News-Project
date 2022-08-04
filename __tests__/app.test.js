@@ -130,17 +130,6 @@ describe("/api/articles/:article_id", () => {
     });
   });
   describe("PATCH", () => {
-    test("Status:201, the body should contain a property of inc_votes and should have a number as a value", () => {
-      const addVotes = { inc_votes: -100 };
-      return request(app)
-        .patch("/api/articles/1")
-        .send(addVotes)
-        .expect(201)
-        .then(({ body }) => {
-          expect(addVotes).toHaveProperty("inc_votes");
-          expect(addVotes.inc_votes).toEqual(expect.any(Number));
-        });
-    });
     test("Status:201, should update votes for the requested article_id", () => {
       const addVotes = { inc_votes: 100 };
       return request(app)
@@ -161,10 +150,8 @@ describe("/api/articles/:article_id", () => {
         .send(addVotes)
         .expect(201)
         .then(({ body: { articles } }) => {
-          articles.forEach((article) => {
-            expect(article).toHaveProperty("votes"),
-              expect(article.votes).toEqual(200);
-          });
+          expect(articles[0]).toHaveProperty("votes"),
+            expect(articles[0].votes).toEqual(200);
         });
     });
     test("Status:201, should subtract the votes when given negitive number", () => {
@@ -175,33 +162,7 @@ describe("/api/articles/:article_id", () => {
         .expect(201)
         .then(({ body: { articles } }) => {
           articles.forEach((article) => {
-            expect(article.votes).toEqual(50);
-          });
-        });
-    });
-    test("Status:201, should not change any other properties", () => {
-      const addVotes = { inc_votes: -50 };
-      const originalArticle = {
-        title: "Living in the shadow of a great man",
-        topic: "mitch",
-        author: "butter_bridge",
-        body: "I find this existence challenging",
-        created_at: "2020-07-09T20:11:00.000Z",
-        votes: 100,
-      };
-      return request(app)
-        .patch("/api/articles/1")
-        .send(addVotes)
-        .expect(201)
-        .then(({ body: { articles } }) => {
-          articles.forEach((article) => {
-            expect(article.title).toEqual(originalArticle.title);
-            expect(article.topic).toEqual(originalArticle.topic);
-            expect(article.author).toEqual(originalArticle.author);
-            expect(article.body).toEqual(originalArticle.body);
-            expect(article.created_at).toEqual(originalArticle.created_at);
-            expect(article.article_id).toEqual(1);
-            expect(article.votes).toEqual(50);
+            expect(articles[0].votes).toEqual(50);
           });
         });
     });
@@ -217,9 +178,31 @@ describe("/api/articles/:article_id", () => {
         });
     });
     test("Status:400, should respond with bad request when there is incorrect type", () => {
-      const addVotes = {inc_votes: "not_a_number"};
+      const addVotes = { inc_votes: "not_a_number" };
       return request(app)
         .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("status:404, should respond with not found message when given an valid but out of range id", () => {
+      const addVotes = { inc_votes: 100 };
+      return request(app)
+        .patch("/api/articles/999999")
+        .send(addVotes)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Not found");
+        });
+    });
+    test("status:400, should respond with bad request message when given an invalid id", () => {
+      const addVotes = { inc_votes: 100 };
+      return request(app)
+        .patch("/api/articles/not_an_id")
         .send(addVotes)
         .expect(400)
         .then(({ body }) => {
