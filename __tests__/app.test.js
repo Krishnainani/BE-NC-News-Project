@@ -129,4 +129,97 @@ describe("/api/articles/:article_id", () => {
         });
     });
   });
+  describe("PATCH", () => {
+    test("Status:201, should update votes for the requested article_id", () => {
+      const addVotes = { inc_votes: 100 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(201)
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(article).toEqual(expect.objectContaining({ article_id: 1 })),
+              expect(article.article_id).toEqual(1);
+          });
+        });
+    });
+    test("Status:201, should add the votes when given positive number", () => {
+      const addVotes = { inc_votes: 100 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(201)
+        .then(({ body: { articles } }) => {
+          expect(articles[0]).toHaveProperty("votes"),
+            expect(articles[0].votes).toEqual(200);
+        });
+    });
+    test("Status:201, should subtract the votes when given negitive number", () => {
+      const addVotes = { inc_votes: -50 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(201)
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(articles[0].votes).toEqual(50);
+          });
+        });
+    });
+    test("Status:400, should respond with bad request when there is malformed body/missing required fields", () => {
+      const addVotes = {};
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("Status:400, should respond with bad request when there is incorrect type", () => {
+      const addVotes = { inc_votes: "not_a_number" };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("status:404, should respond with not found message when given an valid but out of range id", () => {
+      const addVotes = { inc_votes: 100 };
+      return request(app)
+        .patch("/api/articles/999999")
+        .send(addVotes)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Not found");
+        });
+    });
+    test("status:400, should respond with bad request message when given an invalid id", () => {
+      const addVotes = { inc_votes: 100 };
+      return request(app)
+        .patch("/api/articles/not_an_id")
+        .send(addVotes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("Status:400, should respond with bad request when the inc_votes is misspelled", () => {
+      const addVotes = { inc_vtes : 100};
+      return request(app)
+        .patch("/api/articles/1")
+        .send(addVotes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
 });
