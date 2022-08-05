@@ -3,6 +3,7 @@ const { getUsers } = require("./controller/users.controller");
 const {
   getArticlesById,
   patchArticleById,
+  getArticles,
 } = require("./controller/articles.controller");
 const { getTopics } = require("./controller/topic.controller");
 
@@ -16,6 +17,7 @@ app.get("/api/articles/:article_id", getArticlesById);
 app.patch("/api/articles/:article_id", patchArticleById);
 
 app.get("/api/users", getUsers);
+app.get('/api/articles', getArticles)
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "Not Found" });
