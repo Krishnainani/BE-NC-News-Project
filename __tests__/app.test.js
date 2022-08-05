@@ -3,6 +3,7 @@ const db = require("../db/connection");
 const request = require("supertest");
 const data = require("../db/data");
 const seed = require("../db/seeds/seed");
+require("jest-sorted");
 const { convertTimestampToDate } = require("../db/seeds/utils");
 
 afterAll(() => {
@@ -28,7 +29,7 @@ describe("/api/topics", () => {
         .get("/api/topics")
         .expect(200)
         .then(({ body }) => {
-          console.log(body)
+          console.log(body, "topics");
           expect(Array.isArray(body.topics)).toBe(true);
           expect(body.topics[0]).toHaveProperty("slug");
           expect(body.topics[0]).toHaveProperty("description");
@@ -56,9 +57,9 @@ describe("/api/articles/:article_id", () => {
         .get("/api/articles/1")
         .expect(200)
         .then(({ body }) => {
-          expect(body).toHaveProperty('article');
+          expect(body).toHaveProperty("article");
           expect(Array.isArray(body.article)).toBe(true);
-          expect(body.article[0]).toBeInstanceOf(Object)
+          expect(body.article[0]).toBeInstanceOf(Object);
         });
     });
     test("status:200, article should contain properties of author, title, article_id, body, topic, created_at, votes", () => {
@@ -66,14 +67,14 @@ describe("/api/articles/:article_id", () => {
         .get("/api/articles/1")
         .expect(200)
         .then(({ body }) => {
-          const {article} = body;
-            expect(article[0]).toHaveProperty("author");
-            expect(article[0]).toHaveProperty("title");
-            expect(article[0]).toHaveProperty("article_id");
-            expect(article[0]).toHaveProperty("body");
-            expect(article[0]).toHaveProperty("topic");
-            expect(article[0]).toHaveProperty("created_at");
-            expect(article[0]).toHaveProperty("votes");
+          const { article } = body;
+          expect(article[0]).toHaveProperty("author");
+          expect(article[0]).toHaveProperty("title");
+          expect(article[0]).toHaveProperty("article_id");
+          expect(article[0]).toHaveProperty("body");
+          expect(article[0]).toHaveProperty("topic");
+          expect(article[0]).toHaveProperty("created_at");
+          expect(article[0]).toHaveProperty("votes");
         });
     });
     test("status:200, should return the requested object whose values are based on the given id ", () => {
@@ -81,16 +82,18 @@ describe("/api/articles/:article_id", () => {
         .get("/api/articles/2")
         .expect(200)
         .then(({ body }) => {
-          const {article} = body;
-            const date = convertTimestampToDate(article[0]);
-            expect(article[0]).toEqual(expect.objectContaining({ article_id: 2 })),
-              expect(article[0].article_id).toEqual(2),
-              expect(article[0].author).toEqual(expect.any(String)),
-              expect(article[0].title).toEqual(expect.any(String)),
-              expect(article[0].body).toEqual(expect.any(String)),
-              expect(article[0].topic).toEqual(expect.any(String)),
-              expect(date.created_at).toEqual(expect.any(Date)),
-              expect(article[0].votes).toEqual(expect.any(Number));
+          const { article } = body;
+          const date = convertTimestampToDate(article[0]);
+          expect(article[0]).toEqual(
+            expect.objectContaining({ article_id: 2 })
+          ),
+            expect(article[0].article_id).toEqual(2),
+            expect(article[0].author).toEqual(expect.any(String)),
+            expect(article[0].title).toEqual(expect.any(String)),
+            expect(article[0].body).toEqual(expect.any(String)),
+            expect(article[0].topic).toEqual(expect.any(String)),
+            expect(date.created_at).toEqual(expect.any(Date)),
+            expect(article[0].votes).toEqual(expect.any(Number));
         });
     });
     test("status:200, requested object should contain comment_count property", () => {
@@ -106,7 +109,7 @@ describe("/api/articles/:article_id", () => {
         .get("/api/articles/1")
         .expect(200)
         .then(({ body }) => {
-          const {article} = body;
+          const { article } = body;
           expect(article[0].comment_count).toEqual("11");
         });
     });
@@ -115,7 +118,7 @@ describe("/api/articles/:article_id", () => {
         .get("/api/articles/2")
         .expect(200)
         .then(({ body }) => {
-          const {article} = body;
+          const { article } = body;
           expect(article[0].comment_count).toEqual("0");
         });
     });
@@ -267,6 +270,58 @@ describe("/api/users", () => {
             expect(user.name).toEqual(expect.any(String));
             expect(user).toHaveProperty("avatar_url");
             expect(user.avatar_url).toEqual(expect.any(String));
+          });
+        });
+    });
+  });
+});
+
+describe("/api/articles", () => {
+  describe("GET", () => {
+    test("status:200, Should have a property of articles", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("articles");
+        });
+    });
+    test("status:200, articles need to be an array of objects", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Array.isArray(body.articles)).toBe(true);
+          expect(body.articles).toHaveLength(12);
+          body.articles.forEach((article) => {
+            expect(typeof article).toEqual("object");
+          });
+        });
+    });
+    test("status:200, the object should have the propertes of author, title, article_id, topic, created_at, votes and comment_count ", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          body.articles.forEach((article) => {
+            const date = convertTimestampToDate(article);
+            expect(article).toHaveProperty("author");
+            expect(article).toHaveProperty("title");
+            expect(article).toHaveProperty("article_id");
+            expect(article).toHaveProperty("topic");
+            expect(article).toHaveProperty("created_at");
+            expect(article).toHaveProperty("votes");
+            expect(article).toHaveProperty("comment_count");
+          });
+        });
+    });
+    test("status:200, articles need to be sorted in descending order by date", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("created_at", {
+            descending: true,
           });
         });
     });
