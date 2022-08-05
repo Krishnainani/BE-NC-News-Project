@@ -17,7 +17,7 @@ exports.fetchArticleById = (article_id) => {
           msg: `User for article_id: ${article_id} not found`,
         });
       }
-      return rows;
+      return rows[0];
     });
 };
 
@@ -34,7 +34,7 @@ exports.updateArticleById = (inc_votes, article_id) => {
           msg: `Not found`,
         });
       }
-      return rows;
+      return rows[0];
     });
 };
 

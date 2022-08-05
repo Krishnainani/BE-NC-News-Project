@@ -5,6 +5,8 @@ const {
 } = require("../model/comments.model");
 const { getUsersForComments } = require("../model/users.model");
 
+
+
 exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   Promise.all([

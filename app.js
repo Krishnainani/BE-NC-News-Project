@@ -6,10 +6,8 @@ const {
   getArticles,
 } = require("./controller/articles.controller");
 const { getTopics } = require("./controller/topic.controller");
-const {
-  getCommentsByArticleId,
-  postCommentsByArticleId,
-} = require("./controller/comments.controller");
+const { getCommentsByArticleId, postCommentsByArticleId } = require("./controller/comments.controller");
+
 
 const app = express();
 
