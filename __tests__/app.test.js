@@ -29,7 +29,6 @@ describe("/api/topics", () => {
         .get("/api/topics")
         .expect(200)
         .then(({ body }) => {
-          console.log(body, "topics");
           expect(Array.isArray(body.topics)).toBe(true);
           expect(body.topics[0]).toHaveProperty("slug");
           expect(body.topics[0]).toHaveProperty("description");
@@ -298,7 +297,7 @@ describe("/api/articles", () => {
           });
         });
     });
-    test("status:200, the object should have the propertes of author, title, article_id, topic, created_at, votes and comment_count ", () => {
+    test("status:200, the object should have the propertes of author, title, article_id, topic, created_at, votes and comment_count", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -323,6 +322,77 @@ describe("/api/articles", () => {
           expect(body.articles).toBeSortedBy("created_at", {
             descending: true,
           });
+        });
+    });
+  });
+});
+
+describe("/api/articles/:article_id/comments", () => {
+  describe("GET", () => {
+    test("status:200, should have comments as a key and should return an object inside the array", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("comments");
+          expect(Array.isArray(body.comments)).toBe(true);
+          body.comments.forEach((comment) => {});
+          expect(body.comments[0]).toBeInstanceOf(Object);
+        });
+    });
+    test("status:200, the returned object should contain comment_id, votes, created_at, author, body", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          comments.forEach((comment) => {
+            const date = convertTimestampToDate(comment);
+            expect(comment.comment_id).toEqual(expect.any(Number)),
+              expect(comment.author).toEqual(expect.any(String)),
+              expect(comment.body).toEqual(expect.any(String)),
+              expect(date.created_at).toEqual(expect.any(Date)),
+              expect(comment.votes).toEqual(expect.any(Number));
+          });
+        });
+    });
+    test("status:200, should return all the objects from comments matching the article id", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(comments.length).toEqual(11);
+          comments.forEach((comment) => {
+            expect(comment.article_id).toEqual(1);
+          });
+        });
+    });
+    test("status:200, should return length of comments array as zero if there no comments with the given article id", () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(comments.length).toEqual(0);
+        });
+    });
+    test("status:404, should respond with not found message when given an valid but out of range id", () => {
+      return request(app)
+        .get("/api/articles/999999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("User for article_id: 999999 not found");
+        });
+    });
+    test("status:400, should respond with bad request message when given an invalid id", () => {
+      return request(app)
+        .get("/api/articles/not_an_id")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg");
+          expect(body.msg).toBe("Bad request");
         });
     });
   });
