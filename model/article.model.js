@@ -1,5 +1,4 @@
 const db = require("../db/connection");
-const { convertTimestampToDate } = require("../db/seeds/utils");
 
 exports.fetchArticleById = (article_id) => {
   return db
@@ -47,7 +46,7 @@ exports.fetchArticles = () => {
        GROUP BY articles.article_id
        ORDER BY created_at DESC;`
     )
-    .then(( {rows} ) => {
+    .then(({ rows }) => {
       return rows;
     });
 };
