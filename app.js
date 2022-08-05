@@ -6,8 +6,10 @@ const {
   getArticles,
 } = require("./controller/articles.controller");
 const { getTopics } = require("./controller/topic.controller");
-const { getCommentsByArticleId, postCommentsByArticleId } = require("./controller/comments.controller");
-
+const {
+  getCommentsByArticleId,
+  postCommentsByArticleId,
+} = require("./controller/comments.controller");
 
 const app = express();
 
@@ -39,7 +41,7 @@ app.use((err, req, res, next) => {
     res.status(400).send({ msg: "Bad request" });
   } else if (err.code === "23502") {
     res.status(400).send({ msg: "Bad request" });
-  }else{
+  } else {
     console.log(err);
     res.status(500).send({ msg: "Internal Server Error" });
   }

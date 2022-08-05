@@ -31,8 +31,8 @@ describe("/api/topics", () => {
         .then(({ body }) => {
           expect(Array.isArray(body.topics)).toBe(true);
           body.topics.forEach((topic) => {
-            expect(body.topics[0]).toHaveProperty("slug");
-            expect(body.topics[0]).toHaveProperty("description");
+            expect(topic).toHaveProperty("slug");
+            expect(topic).toHaveProperty("description");
           });
         });
     });
@@ -147,7 +147,6 @@ describe("/api/articles/:article_id", () => {
         .expect(201)
         .then(({ body }) => {
           const { article } = body;
-          console.log(body);
           expect(article.article_id).toEqual(1);
         });
     });
@@ -326,8 +325,9 @@ describe("/api/articles/:article_id/comments", () => {
         .then(({ body }) => {
           expect(body).toHaveProperty("comments");
           expect(Array.isArray(body.comments)).toBe(true);
-          body.comments.forEach((comment) => {});
-          expect(body.comments[0]).toBeInstanceOf(Object);
+          body.comments.forEach((comment) => {
+            expect(comment).toBeInstanceOf(Object);
+          });
         });
     });
     test("status:200, the returned object should contain comment_id, votes, created_at, author, body", () => {
@@ -467,7 +467,7 @@ describe("/api/articles/:article_id/comments", () => {
     });
     test("status:400, should respond with bad request message when the body is not given", () => {
       const postComment = {
-        username: "butter_bridge"
+        username: "butter_bridge",
       };
       return request(app)
         .post("/api/articles/1/comments")
@@ -480,7 +480,7 @@ describe("/api/articles/:article_id/comments", () => {
     test("status:400, should respond with bad request message when the username is spelled wrong", () => {
       const postComment = {
         usernae: "butter_bridge",
-        body: "Every point of our life is filled with tresures"
+        body: "Every point of our life is filled with tresures",
       };
       return request(app)
         .post("/api/articles/1/comments")
@@ -493,7 +493,7 @@ describe("/api/articles/:article_id/comments", () => {
     test("status:400, should respond with bad request message when the body is spelled wrong", () => {
       const postComment = {
         username: "butter_bridge",
-        bod: "Every point of our life is filled with tresures"
+        bod: "Every point of our life is filled with tresures",
       };
       return request(app)
         .post("/api/articles/1/comments")

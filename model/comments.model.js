@@ -9,7 +9,6 @@ exports.fetchCommentsByArticleId = (article_id) => {
     });
 };
 
-
 exports.createCommentByArticleId = (username, body, article_id) => {
   return db
     .query(
@@ -20,4 +19,3 @@ exports.createCommentByArticleId = (username, body, article_id) => {
       return rows[0];
     });
 };
-
