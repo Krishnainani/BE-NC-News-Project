@@ -29,7 +29,7 @@ describe("/api/topics", () => {
         .get("/api/topics")
         .expect(200)
         .then(({ body }) => {
-          console.log(body, "topics")
+          console.log(body, "topics");
           expect(Array.isArray(body.topics)).toBe(true);
           expect(body.topics[0]).toHaveProperty("slug");
           expect(body.topics[0]).toHaveProperty("description");
@@ -298,7 +298,7 @@ describe("/api/articles", () => {
           });
         });
     });
-    test("status:200, the object should have the propertes of author, title, article_id, topic, created_at, votes and comment_count with their desired values ", () => {
+    test("status:200, the object should have the propertes of author, title, article_id, topic, created_at, votes and comment_count ", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -311,7 +311,7 @@ describe("/api/articles", () => {
             expect(article).toHaveProperty("topic");
             expect(article).toHaveProperty("created_at");
             expect(article).toHaveProperty("votes");
-            expect(article).toHaveProperty("comment_count")
+            expect(article).toHaveProperty("comment_count");
           });
         });
     });
@@ -320,8 +320,9 @@ describe("/api/articles", () => {
         .get("/api/articles")
         .expect(200)
         .then(({ body }) => {
-            expect(body.articles).toBeSortedBy("created_at", { descending: true});
-         
+          expect(body.articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
         });
     });
   });
