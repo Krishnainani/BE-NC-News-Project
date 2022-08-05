@@ -29,7 +29,6 @@ describe("/api/topics", () => {
         .get("/api/topics")
         .expect(200)
         .then(({ body }) => {
-          console.log(body, "topics");
           expect(Array.isArray(body.topics)).toBe(true);
           expect(body.topics[0]).toHaveProperty("slug");
           expect(body.topics[0]).toHaveProperty("description");
@@ -328,7 +327,7 @@ describe("/api/articles", () => {
   });
 });
 
-describe.only("/api/articles/:article_id/comments", () => {
+describe("/api/articles/:article_id/comments", () => {
   describe("GET", () => {
     test("status:200, should have comments as a key and should return an object inside the array", () => {
       return request(app)
