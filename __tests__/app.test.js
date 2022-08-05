@@ -30,8 +30,10 @@ describe("/api/topics", () => {
         .expect(200)
         .then(({ body }) => {
           expect(Array.isArray(body.topics)).toBe(true);
-          expect(body.topics[0]).toHaveProperty("slug");
-          expect(body.topics[0]).toHaveProperty("description");
+          body.topics.forEach((topic) => {
+            expect(body.topics[0]).toHaveProperty("slug");
+            expect(body.topics[0]).toHaveProperty("description");
+          });
         });
     });
   });
@@ -51,14 +53,13 @@ describe("/*", () => {
 
 describe("/api/articles/:article_id", () => {
   describe("GET", () => {
-    test("status:200, should have article as a key and should return an object inside the array", () => {
+    test("status:200, should have article as a key and should return an object", () => {
       return request(app)
         .get("/api/articles/1")
         .expect(200)
         .then(({ body }) => {
           expect(body).toHaveProperty("article");
-          expect(Array.isArray(body.article)).toBe(true);
-          expect(body.article[0]).toBeInstanceOf(Object);
+          expect(body.article).toBeInstanceOf(Object);
         });
     });
     test("status:200, article should contain properties of author, title, article_id, body, topic, created_at, votes", () => {
@@ -67,13 +68,13 @@ describe("/api/articles/:article_id", () => {
         .expect(200)
         .then(({ body }) => {
           const { article } = body;
-          expect(article[0]).toHaveProperty("author");
-          expect(article[0]).toHaveProperty("title");
-          expect(article[0]).toHaveProperty("article_id");
-          expect(article[0]).toHaveProperty("body");
-          expect(article[0]).toHaveProperty("topic");
-          expect(article[0]).toHaveProperty("created_at");
-          expect(article[0]).toHaveProperty("votes");
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("body");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
         });
     });
     test("status:200, should return the requested object whose values are based on the given id ", () => {
@@ -82,17 +83,14 @@ describe("/api/articles/:article_id", () => {
         .expect(200)
         .then(({ body }) => {
           const { article } = body;
-          const date = convertTimestampToDate(article[0]);
-          expect(article[0]).toEqual(
-            expect.objectContaining({ article_id: 2 })
-          ),
-            expect(article[0].article_id).toEqual(2),
-            expect(article[0].author).toEqual(expect.any(String)),
-            expect(article[0].title).toEqual(expect.any(String)),
-            expect(article[0].body).toEqual(expect.any(String)),
-            expect(article[0].topic).toEqual(expect.any(String)),
+          const date = convertTimestampToDate(article);
+          expect(article.article_id).toEqual(2),
+            expect(article.author).toEqual(expect.any(String)),
+            expect(article.title).toEqual(expect.any(String)),
+            expect(article.body).toEqual(expect.any(String)),
+            expect(article.topic).toEqual(expect.any(String)),
             expect(date.created_at).toEqual(expect.any(Date)),
-            expect(article[0].votes).toEqual(expect.any(Number));
+            expect(article.votes).toEqual(expect.any(Number));
         });
     });
     test("status:200, requested object should contain comment_count property", () => {
@@ -100,7 +98,7 @@ describe("/api/articles/:article_id", () => {
         .get("/api/articles/2")
         .expect(200)
         .then(({ body: { article } }) => {
-          expect(article[0]).toHaveProperty("comment_count");
+          expect(article).toHaveProperty("comment_count");
         });
     });
     test("status:200, comment_count should be the sum of comments objects whose article_id is same as given article_id", () => {
@@ -109,7 +107,7 @@ describe("/api/articles/:article_id", () => {
         .expect(200)
         .then(({ body }) => {
           const { article } = body;
-          expect(article[0].comment_count).toEqual("11");
+          expect(article.comment_count).toEqual("11");
         });
     });
     test("status:200, comment_count should be zero if there are zero objects with that article id", () => {
@@ -118,7 +116,7 @@ describe("/api/articles/:article_id", () => {
         .expect(200)
         .then(({ body }) => {
           const { article } = body;
-          expect(article[0].comment_count).toEqual("0");
+          expect(article.comment_count).toEqual("0");
         });
     });
     test("status:404, should respond with not found message when given an valid but out of range id", () => {
@@ -141,17 +139,16 @@ describe("/api/articles/:article_id", () => {
     });
   });
   describe("PATCH", () => {
-    test("Status:201, should update votes for the requested article_id", () => {
+    test("Status:201, should only be applied for the requested article_id", () => {
       const addVotes = { inc_votes: 100 };
       return request(app)
         .patch("/api/articles/1")
         .send(addVotes)
         .expect(201)
-        .then(({ body: { articles } }) => {
-          articles.forEach((article) => {
-            expect(article).toEqual(expect.objectContaining({ article_id: 1 })),
-              expect(article.article_id).toEqual(1);
-          });
+        .then(({ body }) => {
+          const { article } = body;
+          console.log(body);
+          expect(article.article_id).toEqual(1);
         });
     });
     test("Status:201, should add the votes when given positive number", () => {
@@ -160,9 +157,9 @@ describe("/api/articles/:article_id", () => {
         .patch("/api/articles/1")
         .send(addVotes)
         .expect(201)
-        .then(({ body: { articles } }) => {
-          expect(articles[0]).toHaveProperty("votes"),
-            expect(articles[0].votes).toEqual(200);
+        .then(({ body: { article } }) => {
+          expect(article).toHaveProperty("votes"),
+            expect(article.votes).toEqual(200);
         });
     });
     test("Status:201, should subtract the votes when given negitive number", () => {
@@ -171,10 +168,8 @@ describe("/api/articles/:article_id", () => {
         .patch("/api/articles/1")
         .send(addVotes)
         .expect(201)
-        .then(({ body: { articles } }) => {
-          articles.forEach((article) => {
-            expect(articles[0].votes).toEqual(50);
-          });
+        .then(({ body: { article } }) => {
+          expect(article.votes).toEqual(50);
         });
     });
     test("Status:400, should respond with bad request when there is malformed body/missing required fields", () => {
