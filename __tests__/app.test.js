@@ -505,3 +505,103 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 });
+
+describe("GET with sort", () => {
+  test("status 200: should default sort by date, order by desc", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("status 200: should sort by any valid coloumn when queried", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("votes", { descending: true });
+      });
+  });
+  test("status 200: should order by asc when queried", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at", { descending: false });
+      });
+  });
+  test("status 200: should filters the articles by the topic value specified in the query", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("status 200: should allow the user to do multiple queries", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes&order=desc&topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("votes", { descending: true });
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("status 400: rejects unapproved sort queries ", () => {
+    return request(app)
+      .get("/api/articles?sort_by=not_a_sort_option")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg");
+        expect(body.msg).toBe("Invalid sort query");
+      });
+  });
+  test("status 400: rejects unapproved order directions ", () => {
+    return request(app)
+      .get("/api/articles?order=not_a_direction")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg");
+        expect(body.msg).toBe("Invalid order query");
+      });
+  });
+  test("status 400: rejects unapproved topic queries ", () => {
+    return request(app)
+      .get(`/api/articles?topic=not_an_approved_topic`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg");
+        expect(body.msg).toBe("Invalid topic query");
+      });
+  });
+  test("status 400: should return invalid query when there is topic is empty", () => {
+    return request(app)
+      .get(`/api/articles?topic=`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg");
+        expect(body.msg).toBe("Invalid topic query");
+      });
+  });
+  test("status 200: should return with default values when order or sort is empty", () => {
+    return request(app)
+      .get(`/api/articles?sort_by=&order=`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("status 200: should return with default values for the one empty and the other is mentioned", () => {
+    return request(app)
+      .get(`/api/articles?sort_by=&order=asc`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at", { descending: false });
+      });
+  });
+});
