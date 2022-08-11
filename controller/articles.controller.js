@@ -2,6 +2,7 @@ const {
   fetchArticleById,
   updateArticleById,
   fetchArticles,
+  eraseCommentById,
 } = require("../model/article.model");
 
 exports.getArticlesById = (req, res, next) => {
@@ -29,3 +30,10 @@ exports.getArticles = (req, res, next) => {
     res.status(200).send({ articles: articles });
   }).catch(next)
 };
+
+exports.deleteCommentById = (req,res,next) => {
+  const {comment_id} = req.params;
+  eraseCommentById(comment_id).then((comment) =>{
+    res.status(204).send()
+  }).catch(next)
+}
