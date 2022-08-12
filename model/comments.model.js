@@ -15,7 +15,6 @@ exports.createCommentByArticleId = (username, body, article_id) => {
       [username, body, article_id]
     )
     .then(({ rows }) => {
-      console.log(rows);
       return rows[0];
     });
 };

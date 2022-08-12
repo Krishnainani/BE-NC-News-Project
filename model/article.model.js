@@ -34,7 +34,6 @@ exports.updateArticleById = (inc_votes, article_id) => {
           msg: `Not found`,
         });
       }
-      console.log(rows)
       return rows[0];
     });
 };
