@@ -2,6 +2,7 @@ const { fetchArticleById } = require("../model/article.model");
 const {
   fetchCommentsByArticleId,
   createCommentByArticleId,
+  eraseCommentById,
 } = require("../model/comments.model");
 const { getUsersForComments } = require("../model/users.model");
 
@@ -32,3 +33,10 @@ exports.postCommentsByArticleId = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.deleteCommentById = (req,res,next) => {
+  const {comment_id} = req.params;
+  eraseCommentById(comment_id).then((comment) =>{
+    res.status(204).send()
+  }).catch(next)
+}

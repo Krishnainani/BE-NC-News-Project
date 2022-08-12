@@ -613,7 +613,7 @@ describe("/api/articles/:article_id/comments", () => {
   });
 });
 
-describe.only("/api/comments/:comment_id", () => {
+describe("/api/comments/:comment_id", () => {
   describe("DELETE", () => {
     test("status 204: should respond with status code 204 and message no content", () => {
       return request(app)

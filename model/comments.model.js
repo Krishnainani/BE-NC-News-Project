@@ -1,5 +1,4 @@
 const db = require("../db/connection");
-const { fetchArticleById } = require("./article.model");
 
 exports.fetchCommentsByArticleId = (article_id) => {
   return db
@@ -16,6 +15,22 @@ exports.createCommentByArticleId = (username, body, article_id) => {
       [username, body, article_id]
     )
     .then(({ rows }) => {
+      console.log(rows);
       return rows[0];
+    });
+};
+
+exports.eraseCommentById = (comment_id) => {
+  return db
+    .query("DELETE FROM comments WHERE comment_id = $1 RETURNING *;", [
+      comment_id,
+    ])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `User for comment_id: ${comment_id} not found`,
+        });
+      }
     });
 };
