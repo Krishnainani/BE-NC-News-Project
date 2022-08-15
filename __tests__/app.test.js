@@ -353,6 +353,16 @@ describe("/api/articles", () => {
           });
         });
     });
+    // test("status 200: should filters the articles by the author name specified in the query", () => {
+    //   return request(app)
+    //     .get("/api/articles?author=butter_bridge")
+    //     .expect(200)
+    //     .then(({ body }) => {
+    //       body.articles.forEach((article) => {
+    //         expect(article.author).toBe("butter_bridge");
+    //       });
+    //     });
+    // });
     test("status 200: should allow the user to do multiple queries", () => {
       return request(app)
         .get("/api/articles?sort_by=votes&order=desc&topic=mitch")
