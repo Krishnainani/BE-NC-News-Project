@@ -60,7 +60,7 @@ exports.fetchArticles = (sort_by = "created_at", order = "desc", topic) => {
     return Promise.reject({ status: 400, msg: "Invalid topic query" });
   }
 
-  let sqlString = `SELECT articles.*, COUNT(comment_id) AS comment_count FROM articles
+  let sqlString = `SELECT articles.article_id,articles.title,articles.topic,articles.author,articles.created_at,articles.votes, COUNT(comment_id) AS comment_count FROM articles
        LEFT JOIN comments ON comments.article_id = articles.article_id `;
 
   if (topic) sqlString += `WHERE articles.topic = '${topic}' `;

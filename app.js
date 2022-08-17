@@ -12,10 +12,13 @@ const {
   deleteCommentById,
 } = require("./controller/comments.controller");
 const {endpoint} = require("./endpoins/api")
+const apiRouter = require('./routes/api-router');
+
 
 const app = express();
 
 app.use(express.json());
+app.use('/', apiRouter);
 
 app.get("/api", endpoint)
 
