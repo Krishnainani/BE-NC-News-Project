@@ -629,7 +629,7 @@ describe("/api/comments/:comment_id", () => {
       return request(app)
         .delete("/api/comments/1")
         .expect(204)
-        .then(( body ) => {
+        .then((body) => {
           expect(body.statusCode).toBe(204);
           expect(body.noContent).toBe(true);
         });
@@ -652,5 +652,17 @@ describe("/api/comments/:comment_id", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
+  });
+});
+
+describe("/api", () => {
+  test("status 200: should look for the endpoints file to have the given number of api's", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("endpoint");
+        expect(Object.keys(body.endpoint)).toHaveLength(9);
+      });
   });
 });
