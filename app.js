@@ -11,10 +11,13 @@ const {
   postCommentsByArticleId,
   deleteCommentById,
 } = require("./controller/comments.controller");
+const {endpoint} = require("./endpoins/api")
 
 const app = express();
 
 app.use(express.json());
+
+app.get("/api", endpoint)
 
 app.get("/api/topics", getTopics);
 
